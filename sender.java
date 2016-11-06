@@ -5,13 +5,28 @@ import java.io.*;
 
 class sender
 {
-	private static InetAddress receiver_IP;
-	private static int receiver_Port;
-	private int ack_received;
-	private int window;
+	public static InetAddress receiver_IP;
+	public static int receiver_Port;
+	public int ack_received;
+	public int window;
+
 	public static void main(String[] args)
 	{
-		receiver_IP = InetAddress.getByName(args[0]);
-		receiver_Port = Integer.parseInt(args[1]);
+		sender s;
+		int MSS = 1000;
+		try
+		{
+			s.receiver_IP = InetAddress.getByName(args[0]);
+			s.receiver_Port = Integer.parseInt(args[1]);			
+		}
+		catch (Exception e)
+		{
+			System.out.println("Couldnt parse inputs! \n");			
+		}
+
+		while (s.ack_received < 100000)
+		{
+
+		}
 	}
 }

@@ -5,5 +5,10 @@ import java.io.*;
 
 class receiver
 {
+	private int ack_number;
 	
+	public static void main(String[] args)
+	{
+		
+	}
 }

@@ -3,12 +3,11 @@ import java.util.*;
 import java.lang.*;
 import java.io.*;
 
-class receiver
-{
-	private int ack_number;
+class receiver{
+	int ack_number;
 	
-	public static void main(String[] args)
-	{
-		
+	public static void main(String[] args){
+		receiver r = new receiver();
+		r.ack_number = 0;
 	}
 }

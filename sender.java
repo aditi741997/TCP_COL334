@@ -5,14 +5,14 @@ import java.io.*;
 
 class sender
 {
-	public static InetAddress receiver_IP;
-	public static int receiver_Port;
+	public InetAddress receiver_IP;
+	public int receiver_Port;
 	public int ack_received;
 	public int window;
 
 	public static void main(String[] args)
 	{
-		sender s;
+		sender s = new sender();
 		int MSS = 1000;
 		try
 		{

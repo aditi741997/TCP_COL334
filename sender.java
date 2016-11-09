@@ -17,7 +17,7 @@ class Sender
 		int id;
 	}
 
-	ArrayDeque <Packet> q;
+	ArrayDeque<Packet> q;
 
 	public static void main(String[] args)
 	{

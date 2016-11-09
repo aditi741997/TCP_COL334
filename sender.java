@@ -3,16 +3,26 @@ import java.util.*;
 import java.lang.*;
 import java.io.*;
 
-class sender
+class Sender
 {
 	public InetAddress receiver_IP;
 	public int receiver_Port;
 	public int ack_received;
 	public int window;
 
+	class Packet{
+		Date end_time;
+		int start_num;
+		int length;
+		int id;
+	}
+
+	ArrayDeque <Packet> q;
+
 	public static void main(String[] args)
 	{
-		sender s = new sender();
+		Sender s = new Sender();
+		s.q = new ArrayDeque<Packet>();
 		int MSS = 1000;
 		try
 		{

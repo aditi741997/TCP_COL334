@@ -7,12 +7,13 @@ class RecThread extends Thread{
 	private Thread t;
 	ArrayDeque<Packet> packet_q;
 	ArrayDeque<String> receive_q;
-	Integer window;
+	Integer window, bytes_sent;
 
-	RecThread(ArrayDeque<Packet> packet_q, ArrayDeque<String> receive_q, Integer window){
+	RecThread(ArrayDeque<Packet> packet_q, ArrayDeque<String> receive_q, Integer window, Integer bytes_sent){
 		this.packet_q = packet_q;
 		this.receive_q = receive_q;
 		this.window = window;
+		this.bytes_sent = bytes_sent;
 	}
 
 	public void start(){
@@ -44,9 +45,13 @@ class RecThread extends Thread{
 			catch(SocketTimeoutException e){
 				synchronized(packet_q) {
 					packet_q.clear();
+					// bytes_sent = 0;
 				}
 				synchronized(window) {
 					window = 1000;
+				}
+				synchronized(bytes_sent) {
+					bytes_sent = 0;
 				}
 			}
 		}

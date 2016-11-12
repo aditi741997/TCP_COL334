@@ -40,7 +40,7 @@ class Sender
 		ArrayDeque<Packet> packet_q = new ArrayDeque<Packet>();
 		ArrayDeque<String> receive_q = new ArrayDeque<String>();
 
-		SendThread sender = new SendThread(packet_q, receive_q, window, bytes_sent);
+		SendThread sender = new SendThread(packet_q, receive_q, window, bytes_sent, receiver_IP, receiver_Port);
 		RecThread receiver = new RecThread(packet_q, receive_q, window, bytes_sent);
 
 		sender.start();

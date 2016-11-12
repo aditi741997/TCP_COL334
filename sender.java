@@ -25,9 +25,9 @@ class Sender
 			id = i;
 		}
 
-		string to_String()
+		String to_String()
 		{
-			string s = "";
+			String s = "";
 			s += start_num + " " + length + " " + id;
 			return s;
 		}
@@ -51,14 +51,14 @@ class Sender
 			DatagramSocket client_skt = new DatagramSocket(s.receiver_Port);
 			DatagramSocket client_skt_rec = new DatagramSocket(1729);
 
-			Timer t = Timer();
+			Timer t = new Timer();
 			int count = 0;
 
-			Packet p = Packet(System.nanoTime() + Math.pow(10,9),0,s.window,count);
-			string str = p.to_String();
+			Packet p = new Packet(System.nanoTime() + Math.pow(10,9),0,s.window,count);
+			String str = p.to_String();
 			DatagramPacket pkt = new DatagramPacket(str.getBytes(),str.length(),s.receiver_IP,s.receiver_Port);
 			s.q.add(p);
-			bytes_sent = s.window;
+			s.bytes_sent = s.window;
 			try
 			{
 				client_skt.send(pkt);

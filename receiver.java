@@ -34,6 +34,9 @@ class Receiver{
 			int start = Integer.parseInt(s[0]);
 			int end = Integer.parseInt(s[1]) + start;
 			int id = Integer.parseInt(s[2]);
+
+			System.out.println("Start " + start + " end " + end + " id " + id);
+
 			if(start == last_receive + 1) last_receive = end;
 			else{
 				Data d = new Data(start, end);
@@ -52,6 +55,8 @@ class Receiver{
 				}
 				if(!found) done = true;
 			}
+			System.out.println("last receive " + last_receive);
+
 			data_send = id + " " + last_receive;
 			packet_send = new DatagramPacket(data_send.getBytes(), data_send.length(), packet_receive.getAddress(), 8888);
 			socket_send.send(packet_send);

@@ -25,7 +25,7 @@ class SendThread extends Thread{
 		this.receiver_Port = receiver_Port;
 		try
 		{
-			client_skt = new DatagramSocket(7777);
+			client_skt = new DatagramSocket(receiver_Port);
 		}
 		catch (Exception e)
 		{
@@ -64,6 +64,8 @@ class SendThread extends Thread{
 		// DatagramPacket packet_receive;
 
 		while (true){
+			Thread.sleep(20);
+			System.out.println("RQ size " + receive_q.size());
 			while(!receive_q.isEmpty()){
 				// process the receiving queue
 				String receive_data = receive_q.get(0);
@@ -79,8 +81,8 @@ class SendThread extends Thread{
 						synchronized(bytes_sent){
 							bytes_sent -= pkt.length;
 						}
-						synchronized(receive_q){
-							receive_q.remove(i);
+						synchronized(packet_q){
+							packet_q.remove(i);
 						}
 						ack_received = Math.max(ack_received, ack);
 					}
@@ -101,6 +103,7 @@ class SendThread extends Thread{
 				Packet p1 = new Packet(System.nanoTime() + (long)(Math.pow(10,9)),ack_received,i,count);
 				str = p1.to_String();
 				count += 1;
+				System.out.println("sent pkt "+str);
 				DatagramPacket pkt1 = new DatagramPacket(str.getBytes(),str.length(),receiver_IP,receiver_Port);
 				packet_q.add(p1);
 				try

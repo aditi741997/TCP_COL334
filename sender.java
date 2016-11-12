@@ -46,13 +46,16 @@ class Sender
 			window = MSS;
 			receiver_IP = InetAddress.getByName(args[0]);
 			receiver_Port = Integer.parseInt(args[1]);
+			boolean pkt_drop = (Integer.parseInt(args[2]) == 1);
+
+			// System.out.println("Drop karoge ka ? " + pkt_drop);
 
 			// DatagramSocket client_skt = new DatagramSocket(receiver_Port);
 			// DatagramSocket client_skt_rec = new DatagramSocket(1729);
 
 			// Timer t = new Timer();
 
-			SendThread sender = new SendThread(packet_q, receive_q, window, bytes_sent, receiver_IP, receiver_Port);
+			SendThread sender = new SendThread(packet_q, receive_q, window, bytes_sent, receiver_IP, receiver_Port, pkt_drop);
 			RecThread receiver = new RecThread(packet_q, receive_q, window, bytes_sent);
 
 			sender.start();

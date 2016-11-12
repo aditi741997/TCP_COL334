@@ -13,8 +13,9 @@ class SendThread extends Thread{
 	int receiver_Port;
 	int ack_received;
 	DatagramSocket client_skt;
+	boolean pkt_drop;
 
-	SendThread(ArrayList<Packet> packet_q, ArrayList<String> receive_q, Integer window, Integer bytes_sent, InetAddress receiver_IP, int receiver_Port){
+	SendThread(ArrayList<Packet> packet_q, ArrayList<String> receive_q, Integer window, Integer bytes_sent, InetAddress receiver_IP, int receiver_Port, boolean x){
 		count = 1;
 		ack_received = 0;
 		this.packet_q = packet_q;
@@ -23,6 +24,7 @@ class SendThread extends Thread{
 		this.bytes_sent = bytes_sent;
 		this.receiver_IP = receiver_IP;
 		this.receiver_Port = receiver_Port;
+		this.pkt_drop = x;
 		try
 		{
 			client_skt = new DatagramSocket(receiver_Port);
@@ -116,7 +118,7 @@ class SendThread extends Thread{
 				packet_q.add(p1);
 				try
 				{
-					if(Math.random() > 0.05){
+					if(Math.random() > 0.05 || !pkt_drop){
 						client_skt.send(pkt1);
 					}
 					count += 1;
@@ -141,7 +143,7 @@ class SendThread extends Thread{
 				packet_q.add(p1);
 				try
 				{
-					if(Math.random() > 0.05){
+					if(Math.random() > 0.05 || !pkt_drop){
 						client_skt.send(pkt1);
 					}
 					count += 1;

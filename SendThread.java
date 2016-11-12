@@ -13,11 +13,11 @@ class SendThread extends Thread{
 	int receiver_Port;
 
 	SendThread(ArrayDeque<Packet> packet_q, ArrayDeque<String> receive_q, Integer window, Integer bytes_sent, InetAddress receiver_IP, int receiver_Port){
+		count = 0;
 		this.packet_q = packet_q;
 		this.receive_q = receive_q;
 		this.window = window;
 		this.bytes_sent = bytes_sent;
-		count = 0;
 		this.receiver_IP = receiver_IP;
 		this.receiver_Port = receiver_Port;
 	}
@@ -35,11 +35,26 @@ class SendThread extends Thread{
 
 		while (true){
 			while(!receive_q.isEmpty()){
-				String receive_data = receive_q.get(0);
 				// process the receiving queue
+				String receive_data = receive_q.get(0);
 				String[] data = receive_data.split(" ");
-				// find id in packet_q: -> delete, subtract from bytes_Send the size of this pkt!!!
+				int id = Integer.parseInt(data[0]);
+				int ack = Integer.parseInt(data[1]);
+				// find id in packet_q: -> delete, subtract from bytes_send the size of this pkt!!!
 				// start + size < ack -> delete
+
+				for(int i = packet_q.size()-1; i>=0; --i){
+					Packet pkt = packet_q.get(i);
+					if(pkt.start_num + pkt.length <= ack){
+						synchronized(bytes_sent){
+							bytes_sent -= pkt.length;
+						}
+						synchronized(receive_q){
+							receive_q.remove(i);
+						}
+						ack_received = Math.max(ack_received, ack);
+					}
+				}
 
 				synchronized(receive_q){
 					receive_q.remove(0);
@@ -100,7 +115,7 @@ class SendThread extends Thread{
 			// 	q = new ArrayDeque();
 			// 	window = MSS;
 			// }
-			for window size remaining ->
+			// for window size remaining ->
 
 		}
 	}

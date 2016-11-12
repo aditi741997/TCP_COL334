@@ -40,7 +40,7 @@ class SendThread extends Thread{
 		}
 		synchronized(bytes_sent)
 		{
-			bytes_sent = window;	
+			bytes_sent = window;
 		}
 		try
 		{

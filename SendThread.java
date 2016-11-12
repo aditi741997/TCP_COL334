@@ -50,6 +50,7 @@ class SendThread extends Thread{
 		{
 			System.out.println("Error in client while sending \n");
 		}
+		System.out.println("!!!!bytes_sent " + bytes_sent);
 	}
 
 	public void start(){
@@ -57,15 +58,19 @@ class SendThread extends Thread{
 			t = new Thread(this, "SendThread");
 			t.start();
 		}
+		bytes_sent = 1000;
 	}
 
 	public void run(){
-		try {
+	try {
 		// DatagramPacket packet_receive;
-
-		while (true){
-			Thread.sleep(20);
-			System.out.println("RQ size " + receive_q.size());
+		while (true && ack_received < 1000000){
+			Thread.sleep(50);
+				System.out.println("Window " + window + " bytes_sent " + bytes_sent + " count " + count + " ack_received " + ack_received);
+				System.out.println("RQ size " + receive_q.size());
+				for(String i : receive_q) System.out.println("\t"+i);
+				System.out.println("PQ size " + receive_q.size());
+				for(Packet i : packet_q) System.out.println("\t"+i.to_String());
 			while(!receive_q.isEmpty()){
 				// process the receiving queue
 				String receive_data = receive_q.get(0);
@@ -77,7 +82,7 @@ class SendThread extends Thread{
 
 				for(int i = packet_q.size()-1; i>=0; --i){
 					Packet pkt = packet_q.get(i);
-					if(pkt.start_num + pkt.length <= ack){
+					if((pkt.start_num + pkt.length <= ack) || (pkt.id == id)){
 						synchronized(bytes_sent){
 							bytes_sent -= pkt.length;
 						}
@@ -95,20 +100,25 @@ class SendThread extends Thread{
 					window += 1000*1000/window;
 				}
 			}
+			System.out.println("Window " + window + " bytes_sent " + bytes_sent + " count " + count);
 			// send packets
 			int i = 1000;
+			int pkt_start = ack_received;
 			String str;
 			while ((window - bytes_sent) >= 1000)
 			{
-				Packet p1 = new Packet(System.nanoTime() + (long)(Math.pow(10,9)),ack_received,i,count);
+				// Thread.sleep(20);
+				Packet p1 = new Packet(System.nanoTime() + (long)(Math.pow(10,9)),pkt_start,i,count);
 				str = p1.to_String();
-				count += 1;
-				System.out.println("sent pkt "+str);
+				pkt_start += i;
+				// count += 1;
 				DatagramPacket pkt1 = new DatagramPacket(str.getBytes(),str.length(),receiver_IP,receiver_Port);
 				packet_q.add(p1);
 				try
 				{
-					client_skt.send(pkt1);
+					if(Math.random() > 0.05){
+						client_skt.send(pkt1);
+					}
 					count += 1;
 				}
 				catch(Exception e)
@@ -119,18 +129,21 @@ class SendThread extends Thread{
 				synchronized(bytes_sent){
 					bytes_sent += i;
 				}
+				System.out.println("sent pkt "+str+" bytes_sent "+bytes_sent);
 			}
 			if (window - bytes_sent > 0)
 			{
 				i = window - bytes_sent;
-				Packet p1 = new Packet(System.nanoTime() + (long)(Math.pow(10,9)),ack_received,i,count);
+				Packet p1 = new Packet(System.nanoTime() + (long)(Math.pow(10,9)),pkt_start,i,count);
 				str = p1.to_String();
-				count += 1;
+				// count += 1;
 				DatagramPacket pkt1 = new DatagramPacket(str.getBytes(),str.length(),receiver_IP,receiver_Port);
 				packet_q.add(p1);
 				try
 				{
-					client_skt.send(pkt1);
+					if(Math.random() > 0.05){
+						client_skt.send(pkt1);
+					}
 					count += 1;
 				}
 				catch(Exception e)
@@ -141,21 +154,10 @@ class SendThread extends Thread{
 				synchronized(bytes_sent){
 					bytes_sent += i;
 				}
+				System.out.println("sent pkt "+str+" bytes_sent "+bytes_sent);
 			}
-
-			// if (System.nanoTime() >= (Packet)(q.getFirst()).end_time)
-			// {
-			// 	q = new ArrayDeque();
-			// 	window = MSS;
-			// }
-			// for window size remaining ->
-
 		}
 	}
-
-	catch (Exception e) {
-		e.printStackTrace();
-	}
-
+	catch (Exception e) { e.printStackTrace(); }
 	}
 }

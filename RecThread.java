@@ -27,12 +27,10 @@ class RecThread extends Thread{
 	public void run(){
 		byte[] buffer = new byte[1000];
 		String receive_data;
-		try
-		{
-			socket_receive = new DatagramSocket(8888);		
+		try{
+			socket_receive = new DatagramSocket(8888);
 		}
-		catch (Exception e)
-		{
+		catch (Exception e){
 			e.printStackTrace();
 		}
 		DatagramPacket packet_receive = new DatagramPacket(buffer, 1000);

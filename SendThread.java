@@ -25,7 +25,7 @@ class SendThread extends Thread{
 		this.receiver_Port = receiver_Port;
 		try
 		{
-			client_skt = new DatagramSocket(7777);
+			client_skt = new DatagramSocket(receiver_Port);
 		}
 		catch (Exception e)
 		{
@@ -40,7 +40,7 @@ class SendThread extends Thread{
 		}
 		synchronized(bytes_sent)
 		{
-			bytes_sent = window;	
+			bytes_sent = window;
 		}
 		try
 		{
@@ -79,8 +79,8 @@ class SendThread extends Thread{
 						synchronized(bytes_sent){
 							bytes_sent -= pkt.length;
 						}
-						synchronized(receive_q){
-							receive_q.remove(i);
+						synchronized(packet_q){
+							packet_q.remove(i);
 						}
 						ack_received = Math.max(ack_received, ack);
 					}

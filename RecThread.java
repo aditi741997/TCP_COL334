@@ -29,7 +29,7 @@ class RecThread extends Thread{
 		String receive_data;
 		try
 		{
-			socket_receive = new DatagramSocket(7777);		
+			socket_receive = new DatagramSocket(8888);		
 		}
 		catch (Exception e)
 		{

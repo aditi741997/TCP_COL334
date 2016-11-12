@@ -49,7 +49,7 @@ class Receiver{
 					Data d = received_packets.get(i);
 					if(d.start <= last_receive + 1){
 						found = true;
-						last_receive = d.end;
+						last_receive = Math.max(d.end,last_receive);
 						received_packets.remove(i);
 					}
 				}

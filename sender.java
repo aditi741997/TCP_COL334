@@ -34,14 +34,14 @@ class Sender
 		int receiver_Port;
 		int ack_received;
 		Integer window;
-		int bytes_sent;
+		Integer bytes_sent;
 		int MSS = 1000;
 
 		ArrayDeque<Packet> packet_q = new ArrayDeque<Packet>();
 		ArrayDeque<String> receive_q = new ArrayDeque<String>();
 
-		SendThread sender = new SendThread(packet_q, receive_q, window);
-		RecThread receiver = new RecThread(packet_q, receive_q, window);
+		SendThread sender = new SendThread(packet_q, receive_q, window, bytes_sent);
+		RecThread receiver = new RecThread(packet_q, receive_q, window, bytes_sent);
 
 		sender.start();
 		receiver.start();

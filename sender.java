@@ -5,12 +5,6 @@ import java.io.*;
 
 class Sender
 {
-	public InetAddress receiver_IP;
-	public int receiver_Port;
-	public int ack_received;
-	public int window;
-	public int bytes_sent;
-
 	class Packet{
 		long end_time;
 		int start_num;
@@ -33,32 +27,39 @@ class Sender
 		}
 	}
 
-	ArrayDeque<Packet> q;
+
 
 	public static void main(String[] args)
 	{
-		Sender s = new Sender();
 		// Date date = new Date();
+		InetAddress receiver_IP;
+		int receiver_Port;
+		int ack_received;
+		int window;
+		int bytes_sent;
+		ArrayDeque<Packet> q;
+		ArrayDeque<String> rq;
+
 		long curr_time = System.nanoTime();
-		s.q = new ArrayDeque<Packet>();
+		q = new ArrayDeque<Packet>();
 		int MSS = 1000;
 		try
 		{
-			s.window = MSS;
-			s.receiver_IP = InetAddress.getByName(args[0]);
-			s.receiver_Port = Integer.parseInt(args[1]);
+			window = MSS;
+			receiver_IP = InetAddress.getByName(args[0]);
+			receiver_Port = Integer.parseInt(args[1]);
 
-			DatagramSocket client_skt = new DatagramSocket(s.receiver_Port);
+			DatagramSocket client_skt = new DatagramSocket(receiver_Port);
 			DatagramSocket client_skt_rec = new DatagramSocket(1729);
 
 			Timer t = new Timer();
 			int count = 0;
 
-			Packet p = new Packet(System.nanoTime() + Math.pow(10,9),0,s.window,count);
+			Packet p = new Packet(System.nanoTime() + Math.pow(10,9),0,window,count);
 			String str = p.to_String();
-			DatagramPacket pkt = new DatagramPacket(str.getBytes(),str.length(),s.receiver_IP,s.receiver_Port);
-			s.q.add(p);
-			s.bytes_sent = s.window;
+			DatagramPacket pkt = new DatagramPacket(str.getBytes(),str.length(),receiver_IP,receiver_Port);
+			q.add(p);
+			bytes_sent = window;
 			try
 			{
 				client_skt.send(pkt);
@@ -77,15 +78,17 @@ class Sender
 
 			while (true)
 			{
-				if (System.nanoTime() >= (Packet)(s.q.getFirst()).end_time)
-				{
-					s.q = new ArrayDeque();
-					s.window = MSS;
-					Packet p1 = Packet(System.nanoTime() + Math.pow(10,9),s.ack_received,s.window,count);
+				// if (System.nanoTime() >= (Packet)(q.getFirst()).end_time)
+				// {
+				// 	q = new ArrayDeque();
+				// 	window = MSS;
+				// }
+				for window size remaining ->
+					Packet p1 = Packet(System.nanoTime() + Math.pow(10,9),ack_received,window,count);
 					str = p1.to_String();
 					count += 1;
 					DatagramSocket pkt1 = new DatagramPacket(str.getBytes(),str.length(),receiver_IP,receiver_Port);
-					s.q.add(p1);
+					q.add(p1);
 					try
 					{
 						client_skt.send(pkt1);
@@ -95,17 +98,7 @@ class Sender
 					{
 						System.out.println("Error in client while sending \n");
 					}
-				}
-				client_skt_rec.setSoTimeout();
-				try
-				{
-					client_skt_rec.receive(rec_pkt);
-					// parse karlo : TODO
-				}
-				catch (SocketTimeoutException e)
-				{
-// TODO
-				}
+
 			}
 
 		}

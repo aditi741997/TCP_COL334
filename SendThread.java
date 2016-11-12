@@ -34,6 +34,9 @@ class SendThread extends Thread{
 				synchronized(receive_q){
 					receive_q.remove(0);
 				}
+				synchronized(window){
+					window += 1000*1000/window;
+				}
 			}
 			// send packets
 

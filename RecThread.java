@@ -30,9 +30,9 @@ class RecThread extends Thread{
 		
 		while(true){
 			int time = 1000;
-			if(!packet_q.isEmpty()) time = packet_q.get(0).end_time;
-			// set socket timeout
-			// to be done!
+			if(!packet_q.isEmpty()) time = (packet_q.get(0).end_time - System.nanoTime())/1000000;
+			if(time < 0) time = 0;
+
 			socket_receive.setSoTimeout(time);
 			try{
 				socket_receive.receive(packet_receive);

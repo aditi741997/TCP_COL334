@@ -49,11 +49,11 @@ class RecThread extends Thread{
 				synchronized(receive_q){
 					receive_q.add(receive_data);
 				}
+				System.out.println("received : " + receive_data);
 			}
 			catch(SocketTimeoutException e){
 				synchronized(packet_q) {
 					packet_q.clear();
-					// bytes_sent = 0;
 				}
 				synchronized(window) {
 					window = 1000;
@@ -61,6 +61,7 @@ class RecThread extends Thread{
 				synchronized(bytes_sent) {
 					bytes_sent = 0;
 				}
+				System.out.println("SocketTimeoutException");
 			}
 			catch (Exception e)
 			{

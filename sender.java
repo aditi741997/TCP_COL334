@@ -34,7 +34,7 @@ class Sender
 		int receiver_Port;
 		int ack_received;
 		Integer window;
-		Integer bytes_sent;
+		Integer bytes_sent = 0;
 		int MSS = 1000;
 
 		ArrayList<Packet> packet_q = new ArrayList<Packet>();
@@ -50,21 +50,7 @@ class Sender
 			// DatagramSocket client_skt = new DatagramSocket(receiver_Port);
 			// DatagramSocket client_skt_rec = new DatagramSocket(1729);
 
-			Timer t = new Timer();
-
-			Packet p = new Packet(System.nanoTime() + Math.pow(10,9),0,window,0);
-			String str = p.to_String();
-			DatagramPacket pkt = new DatagramPacket(str.getBytes(),str.length(),receiver_IP,receiver_Port);
-			packet_q.add(p);
-			bytes_sent = window;
-			try
-			{
-				client_skt.send(pkt);
-			}
-			catch(Exception e)
-			{
-				System.out.println("Error in client while sending \n");
-			}
+			// Timer t = new Timer();
 
 			SendThread sender = new SendThread(packet_q, receive_q, window, bytes_sent, receiver_IP, receiver_Port);
 			RecThread receiver = new RecThread(packet_q, receive_q, window, bytes_sent);

@@ -8,6 +8,7 @@ class RecThread extends Thread{
 	ArrayList<Packet> packet_q;
 	ArrayList<String> receive_q;
 	Integer window, bytes_sent;
+	DatagramSocket socket_receive;
 
 	RecThread(ArrayList<Packet> packet_q, ArrayList<String> receive_q, Integer window, Integer bytes_sent){
 		this.packet_q = packet_q;
@@ -26,16 +27,23 @@ class RecThread extends Thread{
 	public void run(){
 		byte[] buffer = new byte[1000];
 		String receive_data;
-		DatagramSocket socket_receive = new DatagramSocket(7777);
+		try
+		{
+			socket_receive = new DatagramSocket(7777);		
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 		DatagramPacket packet_receive = new DatagramPacket(buffer, 1000);
 		
 		while(true){
-			int time = 1000;
-			if(!packet_q.isEmpty()) time = packet_q.get(0).end_time;
-			// set socket timeout
-			// to be done!
-			socket_receive.setSoTimeout(time);
+			long time = 1000;
+			if(!packet_q.isEmpty()) time = (packet_q.get(0).end_time - System.nanoTime())/1000000;
+			if(time < 0) time = 0;
+
 			try{
+				socket_receive.setSoTimeout((int)time);
 				socket_receive.receive(packet_receive);
 				receive_data = new String(packet_receive.getData(), 0, packet_receive.getLength());
 				synchronized(receive_q){
@@ -53,6 +61,10 @@ class RecThread extends Thread{
 				synchronized(bytes_sent) {
 					bytes_sent = 0;
 				}
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
 			}
 		}
 	}

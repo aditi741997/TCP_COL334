@@ -55,9 +55,9 @@ class Receiver{
 				}
 				if(!found) done = true;
 			}
-			System.out.println("last receive " + last_receive);
+			System.out.println("ACK " + (last_receive+1));
 
-			data_send = id + " " + last_receive;
+			data_send = id + " " + (last_receive+1);
 			packet_send = new DatagramPacket(data_send.getBytes(), data_send.length(), packet_receive.getAddress(), 8888);
 			socket_send.send(packet_send);
 		}

@@ -37,7 +37,9 @@ class Receiver{
 
 			System.out.println("Start " + start + " end " + end + " id " + id);
 
-			if(start <= last_receive + 1) last_receive = end;
+			int old_ack = last_receive;
+
+			if(start <= last_receive + 1) last_receive = Math.max(end,last_receive);
 			else{
 				Data d = new Data(start, end);
 				received_packets.add(d);
@@ -49,13 +51,16 @@ class Receiver{
 					Data d = received_packets.get(i);
 					if(d.start <= last_receive + 1){
 						found = true;
-						last_receive = d.end;
+						last_receive = Math.max(d.end,last_receive);
 						received_packets.remove(i);
 					}
 				}
 				if(!found) done = true;
 			}
 			System.out.println("ACK " + (last_receive+1));
+
+			if (old_ack > last_receive)
+				System.out.println("ERRORRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR!!! NEW < OLD!!!!");
 
 			data_send = id + " " + (last_receive+1);
 			packet_send = new DatagramPacket(data_send.getBytes(), data_send.length(), packet_receive.getAddress(), 8888);

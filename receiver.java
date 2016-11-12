@@ -15,8 +15,8 @@ class Data{
 class Receiver{
 
 	public static void main(String[] args) throws Exception	{
-		int last_receive = 0;
-		int port = Integer.parseInt(args[0]);
+		int last_receive = -1;
+		// int port = Integer.parseInt(args[0]);
 		Receiver r = new Receiver();
 		DatagramSocket socket_receive = new DatagramSocket(7777);
 		DatagramSocket socket_send = new DatagramSocket(8888);
@@ -32,12 +32,12 @@ class Receiver{
 			data_receive = new String(packet_receive.getData(), 0, packet_receive.getLength());
 			String[] s = data_receive.split(" ");
 			int start = Integer.parseInt(s[0]);
-			int end = Integer.parseInt(s[1]) + start;
+			int end = Integer.parseInt(s[1]) + start - 1;
 			int id = Integer.parseInt(s[2]);
 
 			System.out.println("Start " + start + " end " + end + " id " + id);
 
-			if(start == last_receive + 1) last_receive = end;
+			if(start <= last_receive + 1) last_receive = end;
 			else{
 				Data d = new Data(start, end);
 				received_packets.add(d);
@@ -47,7 +47,7 @@ class Receiver{
 				boolean found = false;
 				for(int i=0; i<received_packets.size(); ++i){
 					Data d = received_packets.get(i);
-					if(d.start == last_receive + 1){
+					if(d.start <= last_receive + 1){
 						found = true;
 						last_receive = d.end;
 						received_packets.remove(i);

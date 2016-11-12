@@ -3,46 +3,50 @@ import java.util.*;
 import java.lang.*;
 import java.io.*;
 
-class Sender
-{
-	class Packet{
-		long end_time;
-		int start_num;
-		int length;
-		int id;
+class Packet{
+	long end_time;
+	int start_num;
+	int length;
+	int id;
 
-		Packet(long ctime, int start, int len, int i)
-		{
-			end_time = ctime;
-			start_num = start;
-			length = len;
-			id = i;
-		}
-
-		String to_String()
-		{
-			String s = "";
-			s += start_num + " " + length + " " + id;
-			return s;
-		}
+	Packet(long ctime, int start, int len, int i)
+	{
+		end_time = ctime;
+		start_num = start;
+		length = len;
+		id = i;
 	}
 
+	String to_String()
+	{
+		String s = "";
+		s += start_num + " " + length + " " + id;
+		return s;
+	}
+}
 
 
+class Sender
+{
 	public static void main(String[] args)
 	{
-		// Date date = new Date();
 		InetAddress receiver_IP;
 		int receiver_Port;
 		int ack_received;
-		int window;
+		Integer window;
 		int bytes_sent;
-		ArrayDeque<Packet> q;
-		ArrayDeque<String> rq;
+		int MSS = 1000;
+
+		ArrayDeque<Packet> packet_q = new ArrayDeque<Packet>();
+		ArrayDeque<String> receive_q = new ArrayDeque<String>();
+
+		SendThread sender = new SendThread(packet_q, receive_q, window);
+		RecThread receiver = new RecThread(packet_q, receive_q, window);
+
+		sender.start();
+		receiver.start();
 
 		long curr_time = System.nanoTime();
-		q = new ArrayDeque<Packet>();
-		int MSS = 1000;
 		try
 		{
 			window = MSS;

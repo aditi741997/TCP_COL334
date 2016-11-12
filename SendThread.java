@@ -5,19 +5,21 @@ import java.io.*;
 
 class SendThread extends Thread{
 	private Thread t;
-	ArrayDeque<Packet> packet_q;
-	ArrayDeque<String> receive_q;
+	ArrayList<Packet> packet_q;
+	ArrayList<String> receive_q;
 	Integer window, bytes_sent;
 	Integer count;
 	InetAddress receiver_IP;
 	int receiver_Port;
+	int ack_received;
 
-	SendThread(ArrayDeque<Packet> packet_q, ArrayDeque<String> receive_q, Integer window, Integer bytes_sent, InetAddress receiver_IP, int receiver_Port){
+	SendThread(ArrayList<Packet> packet_q, ArrayList<String> receive_q, Integer window, Integer bytes_sent, InetAddress receiver_IP, int receiver_Port){
+		count = 1;
+		ack_received = 0;
 		this.packet_q = packet_q;
 		this.receive_q = receive_q;
 		this.window = window;
 		this.bytes_sent = bytes_sent;
-		count = 0;
 		this.receiver_IP = receiver_IP;
 		this.receiver_Port = receiver_Port;
 	}
@@ -30,8 +32,10 @@ class SendThread extends Thread{
 	}
 
 	public void run(){
-		DatagramSocket socket_send = new DatagramSocket(7777);
-		DatagramPacket packet_receive;
+		try {
+
+		DatagramSocket client_skt = new DatagramSocket(7777);
+		// DatagramPacket packet_receive;
 
 		while (true){
 			while(!receive_q.isEmpty()){
@@ -48,13 +52,14 @@ class SendThread extends Thread{
 			}
 			// send packets
 			int i = 1000;
+			String str;
 			while ((window - bytes_sent) >= 1000)
 			{
-				Packet p1 = Packet(System.nanoTime() + Math.pow(10,9),ack_received,i,count);
+				Packet p1 = new Packet(System.nanoTime() + (long)(Math.pow(10,9)),ack_received,i,count);
 				str = p1.to_String();
 				count += 1;
-				DatagramSocket pkt1 = new DatagramPacket(str.getBytes(),str.length(),receiver_IP,receiver_Port);
-				q.add(p1);
+				DatagramPacket pkt1 = new DatagramPacket(str.getBytes(),str.length(),receiver_IP,receiver_Port);
+				packet_q.add(p1);
 				try
 				{
 					client_skt.send(pkt1);
@@ -72,11 +77,11 @@ class SendThread extends Thread{
 			if (window - bytes_sent > 0)
 			{
 				i = window - bytes_sent;
-				Packet p1 = Packet(System.nanoTime() + Math.pow(10,9),ack_received,i,count);
+				Packet p1 = new Packet(System.nanoTime() + (long)(Math.pow(10,9)),ack_received,i,count);
 				str = p1.to_String();
 				count += 1;
-				DatagramSocket pkt1 = new DatagramPacket(str.getBytes(),str.length(),receiver_IP,receiver_Port);
-				q.add(p1);
+				DatagramPacket pkt1 = new DatagramPacket(str.getBytes(),str.length(),receiver_IP,receiver_Port);
+				packet_q.add(p1);
 				try
 				{
 					client_skt.send(pkt1);
@@ -91,15 +96,11 @@ class SendThread extends Thread{
 					bytes_sent += i;
 				}
 			}
-
-
-			// if (System.nanoTime() >= (Packet)(q.getFirst()).end_time)
-			// {
-			// 	q = new ArrayDeque();
-			// 	window = MSS;
-			// }
-			for window size remaining ->
-
 		}
+	}
+
+	catch (Exception e) {
+		e.printStackTrace();
+	}
 	}
 }

@@ -37,14 +37,8 @@ class Sender
 		Integer bytes_sent;
 		int MSS = 1000;
 
-		ArrayDeque<Packet> packet_q = new ArrayDeque<Packet>();
-		ArrayDeque<String> receive_q = new ArrayDeque<String>();
-
-		SendThread sender = new SendThread(packet_q, receive_q, window, bytes_sent, receiver_IP, receiver_Port);
-		RecThread receiver = new RecThread(packet_q, receive_q, window, bytes_sent);
-
-		sender.start();
-		receiver.start();
+		ArrayList<Packet> packet_q = new ArrayList<Packet>();
+		ArrayList<String> receive_q = new ArrayList<String>();
 
 		long curr_time = System.nanoTime();
 		try
@@ -53,16 +47,15 @@ class Sender
 			receiver_IP = InetAddress.getByName(args[0]);
 			receiver_Port = Integer.parseInt(args[1]);
 
-			DatagramSocket client_skt = new DatagramSocket(receiver_Port);
-			DatagramSocket client_skt_rec = new DatagramSocket(1729);
+			// DatagramSocket client_skt = new DatagramSocket(receiver_Port);
+			// DatagramSocket client_skt_rec = new DatagramSocket(1729);
 
 			Timer t = new Timer();
-			int count = 0;
 
-			Packet p = new Packet(System.nanoTime() + Math.pow(10,9),0,window,count);
+			Packet p = new Packet(System.nanoTime() + Math.pow(10,9),0,window,0);
 			String str = p.to_String();
 			DatagramPacket pkt = new DatagramPacket(str.getBytes(),str.length(),receiver_IP,receiver_Port);
-			q.add(p);
+			packet_q.add(p);
 			bytes_sent = window;
 			try
 			{
@@ -73,37 +66,12 @@ class Sender
 				System.out.println("Error in client while sending \n");
 			}
 
-			count += 1;
+			SendThread sender = new SendThread(packet_q, receive_q, window, bytes_sent, receiver_IP, receiver_Port);
+			RecThread receiver = new RecThread(packet_q, receive_q, window, bytes_sent);
 
-			byte[] receive_buff = new byte[p];
-			DatagramPacket rec_pkt = new DatagramPacket(receive_buff,p);
+			sender.start();
+			receiver.start();
 
-
-
-			while (true)
-			{
-				// if (System.nanoTime() >= (Packet)(q.getFirst()).end_time)
-				// {
-				// 	q = new ArrayDeque();
-				// 	window = MSS;
-				// }
-				for window size remaining ->
-					Packet p1 = Packet(System.nanoTime() + Math.pow(10,9),ack_received,window,count);
-					str = p1.to_String();
-					count += 1;
-					DatagramSocket pkt1 = new DatagramPacket(str.getBytes(),str.length(),receiver_IP,receiver_Port);
-					q.add(p1);
-					try
-					{
-						client_skt.send(pkt1);
-						count += 1;
-					}
-					catch(Exception e)
-					{
-						System.out.println("Error in client while sending \n");
-					}
-
-			}
 
 		}
 		catch (Exception e)

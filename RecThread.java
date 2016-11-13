@@ -35,7 +35,8 @@ class RecThread extends Thread{
 			e.printStackTrace();
 		}
 		DatagramPacket packet_receive = new DatagramPacket(buffer, 1000);
-		
+		long start_time = System.nanoTime();
+
 		while(true){
 			/* Keeps on receiving acks, with timeout being set to 
 			timeout of first packet in our list of packets sent.
@@ -51,7 +52,7 @@ class RecThread extends Thread{
 				synchronized(receive_q){
 					receive_q.add(receive_data);
 				}
-				System.out.println("received : " + receive_data);
+				System.out.println("Window = " +window+ ", Time Elapsed = " + ((System.nanoTime()-start_time)/1000000) + ", Ack = " + (receive_data.split(" ")[1]));
 			}
 			catch(SocketTimeoutException e){
 				synchronized(packet_q) {

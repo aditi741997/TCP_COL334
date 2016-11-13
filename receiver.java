@@ -20,7 +20,7 @@ class Receiver{
 		// int port = Integer.parseInt(args[0]);
 		Receiver r = new Receiver();
 		int port = Integer.parseInt(args[0]);
-		System.out.println("Port is " + port);
+		// System.out.println("Port is " + port);
 		DatagramSocket socket_receive = new DatagramSocket(port);
 
 		DatagramSocket socket_send = new DatagramSocket(8888);

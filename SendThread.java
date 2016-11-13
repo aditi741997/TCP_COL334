@@ -15,6 +15,7 @@ class SendThread extends Thread{
 	DatagramSocket client_skt;
 	boolean pkt_drop;
 
+
 /* SendThread is the object that handles parsing the acks received and 
 also sending new packets based on window size and packets dropped. */
 
@@ -57,7 +58,7 @@ also sending new packets based on window size and packets dropped. */
 		{
 			System.out.println("Error in client while sending \n");
 		}
-		System.out.println("!!!!bytes_sent " + bytes_sent);
+		// System.out.println("!!!!bytes_sent " + bytes_sent);
 	}
 
 	public void start(){
@@ -72,13 +73,14 @@ also sending new packets based on window size and packets dropped. */
 	public void run(){
 	try {
 		// DatagramPacket packet_receive;
+		long start_time = System.nanoTime();
 		while (true && ack_received < 100000){
 			Thread.sleep(50);
-				System.out.println("Window " + window + " bytes_sent " + bytes_sent + " count " + count + " ack_received " + ack_received);
-				System.out.println("RQ size " + receive_q.size());
-				for(String i : receive_q) System.out.println("\t"+i);
-				System.out.println("PQ size " + receive_q.size());
-				for(Packet i : packet_q) System.out.println("\t"+i.to_String());
+				// System.out.println("Window " + window + " bytes_sent " + bytes_sent + " count " + count + " ack_received " + ack_received);
+				// System.out.println("RQ size " + receive_q.size());
+				// for(String i : receive_q) System.out.println("\t"+i);
+				// System.out.println("PQ size " + receive_q.size());
+				// for(Packet i : packet_q) System.out.println("\t"+i.to_String());
 
 			// Parsing acks received ->
 			while(!receive_q.isEmpty()){
@@ -111,7 +113,7 @@ also sending new packets based on window size and packets dropped. */
 					window += 1000*1000/window;
 				}
 			}
-			System.out.println("Window " + window + " bytes_sent " + bytes_sent + " count " + count);
+			// System.out.println("Window " + window + " bytes_sent " + bytes_sent + " count " + count);
 			/* send packets 
 			With every packet being sent, update the value of bytes_sent and the counter of #packets
 			and add the packet sent to the array of packets */
@@ -121,6 +123,8 @@ also sending new packets based on window size and packets dropped. */
 			while ((window - bytes_sent) >= 1000)
 			{
 				// Thread.sleep(20);
+				if (ack_received >= 100000)
+					break;
 				Packet p1 = new Packet(System.nanoTime() + (long)(Math.pow(10,9)),pkt_start,i,count);
 				str = p1.to_String();
 				pkt_start += i;
@@ -133,6 +137,7 @@ also sending new packets based on window size and packets dropped. */
 						client_skt.send(pkt1);
 					}
 					count += 1;
+					System.out.println("Window = " + window + ", Time Elapsed = " + ((System.nanoTime() - start_time)/1000000) + ", Seq No = " + pkt_start);
 				}
 				catch(Exception e)
 				{
@@ -142,9 +147,9 @@ also sending new packets based on window size and packets dropped. */
 				synchronized(bytes_sent){
 					bytes_sent += i;
 				}
-				System.out.println("sent pkt "+str+" bytes_sent "+bytes_sent);
+				// System.out.println("sent pkt "+str+" bytes_sent "+bytes_sent);
 			}
-			if (window - bytes_sent > 0)
+			if (window - bytes_sent > 0 && ack_received < 100000)
 			{
 				i = window - bytes_sent;
 				Packet p1 = new Packet(System.nanoTime() + (long)(Math.pow(10,9)),pkt_start,i,count);
@@ -158,6 +163,7 @@ also sending new packets based on window size and packets dropped. */
 						client_skt.send(pkt1);
 					}
 					count += 1;
+					System.out.println("Window = " + window + ", Time Exp = " + (System.nanoTime() - start_time) + ", Seq No = " + pkt_start);
 				}
 				catch(Exception e)
 				{
@@ -167,7 +173,7 @@ also sending new packets based on window size and packets dropped. */
 				synchronized(bytes_sent){
 					bytes_sent += i;
 				}
-				System.out.println("sent pkt "+str+" bytes_sent "+bytes_sent);
+				// System.out.println("sent pkt "+str+" bytes_sent "+bytes_sent);
 			}
 		}
 	}

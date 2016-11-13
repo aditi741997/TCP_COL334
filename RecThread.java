@@ -4,6 +4,7 @@ import java.lang.*;
 import java.io.*;
 
 class RecThread extends Thread{
+	/* Has a global list of packets sent and strings (acks) received. */
 	private Thread t;
 	ArrayList<Packet> packet_q;
 	ArrayList<String> receive_q;
@@ -36,6 +37,9 @@ class RecThread extends Thread{
 		DatagramPacket packet_receive = new DatagramPacket(buffer, 1000);
 		
 		while(true){
+			/* Keeps on receiving acks, with timeout being set to 
+			timeout of first packet in our list of packets sent.
+			Adds the ack received to the list of strings of received acks */
 			long time = 1000;
 			if(!packet_q.isEmpty()) time = (packet_q.get(0).end_time - System.nanoTime())/1000000;
 			if(time < 0) time = 0;

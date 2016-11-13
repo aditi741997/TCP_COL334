@@ -8,13 +8,13 @@ class Packet{
 	int start_num;
 	int length;
 	int id;
-
+/* A class to efficiently hold the data in a packet, at the sender. */
 	Packet(long ctime, int start, int len, int i)
 	{
-		end_time = ctime;
-		start_num = start;
-		length = len;
-		id = i;
+		end_time = ctime; // time at which this packet will timeout
+		start_num = start; // the byte number from which the data in this packet starts
+		length = len; // number of bytes this packet contains
+		id = i; // packet number for identification
 	}
 
 	String to_String()
@@ -54,7 +54,6 @@ class Sender
 			// DatagramSocket client_skt_rec = new DatagramSocket(1729);
 
 			// Timer t = new Timer();
-
 			SendThread sender = new SendThread(packet_q, receive_q, window, bytes_sent, receiver_IP, receiver_Port, pkt_drop);
 			RecThread receiver = new RecThread(packet_q, receive_q, window, bytes_sent);
 

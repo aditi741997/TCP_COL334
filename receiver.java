@@ -4,6 +4,7 @@ import java.lang.*;
 import java.io.*;
 
 class Data{
+	/* A class to efficiently store the bytes being received here */
 	int start;
 	int end;
 	Data(int a, int b){
@@ -18,7 +19,10 @@ class Receiver{
 		int last_receive = -1;
 		// int port = Integer.parseInt(args[0]);
 		Receiver r = new Receiver();
-		DatagramSocket socket_receive = new DatagramSocket(7777);
+		int port = Integer.parseInt(args[0]);
+		System.out.println("Port is " + port);
+		DatagramSocket socket_receive = new DatagramSocket(port);
+
 		DatagramSocket socket_send = new DatagramSocket(8888);
 		LinkedList<Data> received_packets = new LinkedList<Data>();
 
@@ -28,6 +32,8 @@ class Receiver{
 		DatagramPacket packet_receive = new DatagramPacket(buff, 1000);
 
 		while(true){
+			/* Simply receives packets, and adds them to the list of Data objects.
+			Also, merges the intervals of bytes received to calculate the new ack value */
 			socket_receive.receive(packet_receive);
 			data_receive = new String(packet_receive.getData(), 0, packet_receive.getLength());
 			String[] s = data_receive.split(" ");
@@ -65,6 +71,7 @@ class Receiver{
 			data_send = id + " " + (last_receive+1);
 			packet_send = new DatagramPacket(data_send.getBytes(), data_send.length(), packet_receive.getAddress(), 8888);
 			socket_send.send(packet_send);
+			/* Sends back an ack for each packet received */
 		}
 	}
 }

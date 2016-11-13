@@ -3,6 +3,14 @@ import java.util.*;
 import java.lang.*;
 import java.io.*;
 
+class IntWrap{
+	int val;
+
+	IntWrap(int x){
+		this.val = x;
+	}
+}
+
 class Packet{
 	long end_time;
 	int start_num;
@@ -33,8 +41,8 @@ class Sender
 		InetAddress receiver_IP;
 		int receiver_Port;
 		int ack_received;
-		Integer window;
-		Integer bytes_sent = 0;
+		IntWrap window = new IntWrap(1000);
+		IntWrap bytes_sent = new IntWrap(0);
 		int MSS = 1000;
 
 		ArrayList<Packet> packet_q = new ArrayList<Packet>();
@@ -43,7 +51,6 @@ class Sender
 		long curr_time = System.nanoTime();
 		try
 		{
-			window = MSS;
 			receiver_IP = InetAddress.getByName(args[0]);
 			receiver_Port = Integer.parseInt(args[1]);
 			boolean pkt_drop = (Integer.parseInt(args[2]) == 1);

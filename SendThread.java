@@ -7,7 +7,7 @@ class SendThread extends Thread{
 	private Thread t;
 	ArrayList<Packet> packet_q;
 	ArrayList<String> receive_q;
-	Integer window, bytes_sent;
+	IntWrap window, bytes_sent;
 	Integer count;
 	InetAddress receiver_IP;
 	int receiver_Port;
@@ -19,7 +19,7 @@ class SendThread extends Thread{
 /* SendThread is the object that handles parsing the acks received and 
 also sending new packets based on window size and packets dropped. */
 
-	SendThread(ArrayList<Packet> packet_q, ArrayList<String> receive_q, Integer window, Integer bytes_sent, InetAddress receiver_IP, int receiver_Port, boolean x){
+	SendThread(ArrayList<Packet> packet_q, ArrayList<String> receive_q, IntWrap window, IntWrap bytes_sent, InetAddress receiver_IP, int receiver_Port, boolean x){
 		count = 1;
 		ack_received = 0;
 		this.packet_q = packet_q;
@@ -39,7 +39,7 @@ also sending new packets based on window size and packets dropped. */
 		}
 
 		// SENDING the first packet ->
-		Packet p = new Packet(System.nanoTime() + (long)(Math.pow(10,9)),0,window,0);
+		Packet p = new Packet(System.nanoTime() + (long)(Math.pow(10,9)),0,window.val,0);
 		String str = p.to_String();
 		DatagramPacket pkt = new DatagramPacket(str.getBytes(),str.length(),receiver_IP,receiver_Port);
 		synchronized(packet_q)
@@ -48,7 +48,7 @@ also sending new packets based on window size and packets dropped. */
 		}
 		synchronized(bytes_sent)
 		{
-			bytes_sent = window;
+			bytes_sent.val = window.val;
 		}
 		try
 		{
@@ -67,7 +67,7 @@ also sending new packets based on window size and packets dropped. */
 			t = new Thread(this, "SendThread");
 			t.start();
 		}
-		bytes_sent = 1000;
+		bytes_sent.val = 1000;
 	}
 
 	public void run(){
@@ -75,7 +75,7 @@ also sending new packets based on window size and packets dropped. */
 		// DatagramPacket packet_receive;
 		long start_time = System.nanoTime();
 		while (true && ack_received < 100000){
-			Thread.sleep(50);
+			Thread.sleep(20);
 				// System.out.println("Window " + window + " bytes_sent " + bytes_sent + " count " + count + " ack_received " + ack_received);
 				// System.out.println("RQ size " + receive_q.size());
 				// for(String i : receive_q) System.out.println("\t"+i);
@@ -97,7 +97,7 @@ also sending new packets based on window size and packets dropped. */
 					Packet pkt = packet_q.get(i);
 					if((pkt.start_num + pkt.length <= ack) || (pkt.id == id)){
 						synchronized(bytes_sent){
-							bytes_sent -= pkt.length;
+							bytes_sent.val -= pkt.length;
 						}
 						synchronized(packet_q){
 							packet_q.remove(i);
@@ -110,7 +110,7 @@ also sending new packets based on window size and packets dropped. */
 					receive_q.remove(0);
 				}
 				synchronized(window){
-					window += 1000*1000/window;
+					window.val += 1000*1000/window.val;
 				}
 			}
 			// System.out.println("Window " + window + " bytes_sent " + bytes_sent + " count " + count);
@@ -120,10 +120,13 @@ also sending new packets based on window size and packets dropped. */
 			int i = 1000;
 			int pkt_start = ack_received;
 			String str;
-			while ((window - bytes_sent) >= 1000)
+			while ((window.val - bytes_sent.val) > 0 && (ack_received < 100000))
 			{
 				// Thread.sleep(20);
-				if (ack_received >= 100000)
+				int sendable = Math.min( 1000, (window.val - bytes_sent.val) );
+				i = Math.min(100000 - ack_received, sendable);
+				i = Math.min(i, 100000 - pkt_start);
+				if (i <= 0)
 					break;
 				Packet p1 = new Packet(System.nanoTime() + (long)(Math.pow(10,9)),pkt_start,i,count);
 				str = p1.to_String();
@@ -137,7 +140,7 @@ also sending new packets based on window size and packets dropped. */
 						client_skt.send(pkt1);
 					}
 					count += 1;
-					System.out.println("Window = " + window + ", Time Elapsed = " + ((System.nanoTime() - start_time)/1000000) + ", Seq No = " + pkt_start);
+					System.out.println("Window = " + window.val + ", Time Elapsed = " + ((System.nanoTime() - start_time)/1000000) + ", Seq No = " + pkt_start + " ");
 				}
 				catch(Exception e)
 				{
@@ -145,36 +148,36 @@ also sending new packets based on window size and packets dropped. */
 				}
 
 				synchronized(bytes_sent){
-					bytes_sent += i;
+					bytes_sent.val += i;
 				}
 				// System.out.println("sent pkt "+str+" bytes_sent "+bytes_sent);
 			}
-			if (window - bytes_sent > 0 && ack_received < 100000)
-			{
-				i = window - bytes_sent;
-				Packet p1 = new Packet(System.nanoTime() + (long)(Math.pow(10,9)),pkt_start,i,count);
-				str = p1.to_String();
-				// count += 1;
-				DatagramPacket pkt1 = new DatagramPacket(str.getBytes(),str.length(),receiver_IP,receiver_Port);
-				packet_q.add(p1);
-				try
-				{
-					if(Math.random() > 0.05 || !pkt_drop){
-						client_skt.send(pkt1);
-					}
-					count += 1;
-					System.out.println("Window = " + window + ", Time Exp = " + (System.nanoTime() - start_time) + ", Seq No = " + pkt_start);
-				}
-				catch(Exception e)
-				{
-					System.out.println("Error in client while sending \n");
-				}
+			// if (window.val - bytes_sent.val > 0 && ack_received < 100000)
+			// {
+			// 	i = window.val - bytes_sent.val;
+			// 	Packet p1 = new Packet(System.nanoTime() + (long)(Math.pow(10,9)),pkt_start,i,count);
+			// 	str = p1.to_String();
+			// 	// count += 1;
+			// 	DatagramPacket pkt1 = new DatagramPacket(str.getBytes(),str.length(),receiver_IP,receiver_Port);
+			// 	packet_q.add(p1);
+			// 	try
+			// 	{
+			// 		if(Math.random() > 0.05 || !pkt_drop){
+			// 			client_skt.send(pkt1);
+			// 		}
+			// 		count += 1;
+			// 		System.out.println("Window = " + window.val + ", Time Elapsed = " + ((System.nanoTime() - start_time)/1000000) + ", Seq No = " + pkt_start);
+			// 	}
+			// 	catch(Exception e)
+			// 	{
+			// 		System.out.println("Error in client while sending \n");
+			// 	}
 
-				synchronized(bytes_sent){
-					bytes_sent += i;
-				}
-				// System.out.println("sent pkt "+str+" bytes_sent "+bytes_sent);
-			}
+			// 	synchronized(bytes_sent){
+			// 		bytes_sent.val += i;
+			// 	}
+			// 	// System.out.println("sent pkt "+str+" bytes_sent "+bytes_sent);
+			// }
 		}
 	}
 	catch (Exception e) { e.printStackTrace(); }

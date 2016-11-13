@@ -8,10 +8,10 @@ class RecThread extends Thread{
 	private Thread t;
 	ArrayList<Packet> packet_q;
 	ArrayList<String> receive_q;
-	Integer window, bytes_sent;
+	IntWrap window, bytes_sent;
 	DatagramSocket socket_receive;
 
-	RecThread(ArrayList<Packet> packet_q, ArrayList<String> receive_q, Integer window, Integer bytes_sent){
+	RecThread(ArrayList<Packet> packet_q, ArrayList<String> receive_q, IntWrap window, IntWrap bytes_sent){
 		this.packet_q = packet_q;
 		this.receive_q = receive_q;
 		this.window = window;
@@ -52,17 +52,17 @@ class RecThread extends Thread{
 				synchronized(receive_q){
 					receive_q.add(receive_data);
 				}
-				System.out.println("Window = " +window+ ", Time Elapsed = " + ((System.nanoTime()-start_time)/1000000) + ", Ack = " + (receive_data.split(" ")[1]));
+				System.out.println("Window = " + window.val + ", Time Elapsed = " + ((System.nanoTime()-start_time)/1000000) + ", Ack = " + (receive_data.split(" ")[1]));
 			}
 			catch(SocketTimeoutException e){
 				synchronized(packet_q) {
 					packet_q.clear();
 				}
 				synchronized(window) {
-					window = 1000;
+					window.val = 1000;
 				}
 				synchronized(bytes_sent) {
-					bytes_sent = 0;
+					bytes_sent.val = 0;
 				}
 				System.out.println("SocketTimeoutException");
 			}

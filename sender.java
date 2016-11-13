@@ -54,6 +54,17 @@ class Sender
 			// DatagramSocket client_skt_rec = new DatagramSocket(1729);
 
 			// Timer t = new Timer();
+
+			//////////////////////////////////////////
+			//Sender maintains 2 threads : SendThread and RecThread
+			//SendThread:
+			//	1. Sends new packets to the receiver based on te window size & packets left.
+			//  2. Parses the acks sent by the receiver.
+			//RecThread:
+			//  It receives the acks from the receiver and keeps updating the timeout of the timer
+			//  to that of the first packet that hasn't received an ack yet.
+			//////////////////////////////////////////
+			
 			SendThread sender = new SendThread(packet_q, receive_q, window, bytes_sent, receiver_IP, receiver_Port, pkt_drop);
 			RecThread receiver = new RecThread(packet_q, receive_q, window, bytes_sent);
 

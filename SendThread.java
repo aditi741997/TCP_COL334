@@ -80,16 +80,16 @@ also sending new packets based on window size and packets dropped. */
 				System.out.println("PQ size " + receive_q.size());
 				for(Packet i : packet_q) System.out.println("\t"+i.to_String());
 
-					// Parsing acks received ->
+			// Parsing acks received ->
 			while(!receive_q.isEmpty()){
 				// process the receiving queue
 				String receive_data = receive_q.get(0);
 				String[] data = receive_data.split(" ");
 				int id = Integer.parseInt(data[0]);
 				int ack = Integer.parseInt(data[1]);
-/* Delete the packet with id same as the one received, 
-also, delete any packet whose data has been acknowledged 
-Update bytes_sent, window with every ack being parsed. */
+				/* Delete the packet with id same as the one received, 
+				also, delete any packet whose data has been acknowledged 
+				Update bytes_sent, window with every ack being parsed. */
 
 				for(int i = packet_q.size()-1; i>=0; --i){
 					Packet pkt = packet_q.get(i);

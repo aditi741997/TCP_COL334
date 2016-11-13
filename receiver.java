@@ -66,7 +66,7 @@ class Receiver{
 			System.out.println("ACK " + (last_receive+1));
 
 			if (old_ack > last_receive)
-				System.out.println("ERRORRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR!!! NEW < OLD!!!!");
+				System.out.println("ERROR!!! NEW < OLD!!!!");
 
 			data_send = id + " " + (last_receive+1);
 			packet_send = new DatagramPacket(data_send.getBytes(), data_send.length(), packet_receive.getAddress(), 8888);
